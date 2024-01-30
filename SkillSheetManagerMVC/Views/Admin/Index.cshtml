@@ -1,0 +1,82 @@
+﻿@using SkillSheetMVC.EnumsAndConstants;
+@model IEnumerable<SkillSheetMVC.Models.AdminModel>
+
+@{
+    ViewData[MVCConatants.Title] = MVCConatants.IndexMethod;
+}
+
+@if (TempData[MVCConatants.MsgAlertMessage] != null)
+{
+    <div class="alert alert-success" role="alert">
+        <strong>Success! </strong> @TempData[MVCConatants.MsgAlertMessage]
+    </div>
+}
+else if (TempData[MVCConatants.ErrFailedMessage] != null)
+{
+    <div class="alert alert-danger" role="alert">
+        <strong>Failed! </strong> @TempData[MVCConatants.ErrFailedMessage]
+    </div>
+}
+
+<head>
+    <link rel="stylesheet" href="~/css/AdminPage.css">
+</head>
+<body>
+    <div class="head-container">
+        <div class="d-flex justify-content-center">
+            <div class="d-flex justify-content-between align-items-center w-100">
+                <h1 class="text-center" id="admin-heading">Manage User</h1>
+                <div id="main-btn">
+                    @Html.ActionLink("Change Password", MVCConatants.IndexMethod, MVCConatants.ForgotPasswordController, new { Username = ViewBag.UserName, Groupname = EnumGroupNames.Admin }, new { @class = "btn btn-primary m-2" })
+                    <a asp-action="Index" asp-controller="Login" asp-route-logout_Clicked="true" asp-route-username=@ViewBag.UserName class="btn btn-danger m-2">Logout</a>
+                </div>
+            </div>
+        </div>
+        <div class="table-container">
+            <div class="" id="button-admin">
+                <div id="PlaceHolderHere"></div>
+                <div>
+                    <button type="button" class="btn btn-primary me-2" data-toggle="ajax-modal-Add" id="AddLink" data-target="#Add" data-url="@Url.Action(MVCConatants.AddUserPartialView, MVCConatants.AdminController, new { adminName = ViewBag.UserName })">Add</button>
+                    <button type="button" class="btn btn-warning me-2 ms-2" data-toggle="ajax-modal-Edit" id="EditLink" disabled data-target="#Edit" data-url="@Url.Action(MVCConatants.EditUserPartialView, MVCConatants.AdminController)" data-username="@ViewBag.UserName">Edit</button>
+                    <button type="button" class="btn btn-danger ms-2" data-toggle="ajax-modal-Delete" id="DeleteLink" disabled data-url="@Url.Action(MVCConatants.DeleteUserMethod, MVCConatants.AdminController)">Delete</button>
+                </div>
+            </div>
+            <table class="">
+                <thead>
+                    <tr>
+                        <th>
+                            @Html.DisplayNameFor(model => model.CheckBox)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Name)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Email)
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <input type="checkbox" class="form-check-input" />
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Name)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Email)
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+
+@section Scripts{
+    <script src="~/js/adminpage.js"></script>
+}

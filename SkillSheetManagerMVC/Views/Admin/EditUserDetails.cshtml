@@ -1,0 +1,106 @@
+﻿@model SkillSheetMVC.Models.AddNewUserModel
+
+<div class="modal fade" id="EditModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h1 class="modal-title mx-auto" id="exampleModalLabel" style="margin-bottom: 0;">Edit User</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="UpdateExistingUser" asp-controller="Admin" asp-route-AdminName="@ViewBag.AdminName" id="myForm">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-group mb-3">
+                        <label asp-for="UserName" class="control-label"><h5>User Name</h5></label>
+                        <input asp-for="UserName" id="UserName" class="form-control" readonlyplaceholder="Enter User Name" style="border: 1px solid black;" />
+                        <span asp-validation-for="UserName" class="text-danger" id="UserName-validation-message"></span>
+                    </div>
+                    <input type="hidden" id="PrevEmail" value="@Model.Email" />
+                    <div class="form-group mb-3">
+                        <label asp-for="Email" class="control-label"><h5>Email</h5></label>
+                        <input asp-for="Email" class="form-control" id="email" placeholder="Enter Email" style="border: 1px solid black;" />
+                        <span asp-validation-for="Email" class="text-danger" id="emailValidationMessage"></span>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label asp-for="Password" class="control-label"><h5>Password</h5></label>
+                        <div class="input-group">
+                            <input asp-for="Password" class="form-control" placeholder="Enter Password" style="border: 1px solid black;" id="password" />
+                            <button type="button" style="border:0px; background-color:white; border: 1px solid black; border-radius:2px 2px;"><i class="far fa-eye" id="togglePassword" style="background-color:white"></i></button>
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger" id="Password-validation-message"></span>
+                    </div>
+                    <div class="modal-footer form-group">
+                        <button type="submit" id="submitBtn" class="btn btn-primary">Edit</button>
+                        <button type="reset" class="btn btn-primary">Reset</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    // For toggle Hide and Unhide  Passsword
+    const togglePassword = document.querySelector('#togglePassword');
+    const password = document.querySelector('#password');
+
+    togglePassword.addEventListener('click', function (e) {
+        // toggle the type attribute
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+        // toggle the eye slash icon
+        this.classList.toggle('fa-eye-slash')
+    });
+</script>
+
+<script>
+    // For validation Of Input Data 
+    $(document).ready(function () {
+        $('form').submit(function (e) {
+            var emailInput = $('#email');
+            var emailValidationMessage = $('#emailValidationMessage');
+            var isInvalidEmail = emailInput.hasClass('is-invalid');
+
+            var userNameInput = $('#UserName');
+            var userNameValidationMessage = $('#UserName-validation-message');
+            var isInvalidUserName = userNameInput.hasClass('is-invalid');
+
+            var passwordInput = $('#password');
+            var passwordValidationMessage = $('#Password-validation-message');
+            var isInvalidPassword = passwordInput.hasClass('is-invalid');
+
+            if (!validateEmail(emailInput.val())) {
+                emailInput.addClass('is-invalid');
+                emailValidationMessage.text('Invalid email address').show();
+                e.preventDefault(); // Prevent form submission
+            } else if (isInvalidEmail) {
+                emailInput.removeClass('is-invalid');
+                emailValidationMessage.hide();
+            }
+
+            if (!userNameInput.val()) {
+                userNameInput.addClass('is-invalid');
+                userNameValidationMessage.text('Username is required').show();
+                e.preventDefault();
+            } else if (isInvalidUserName) {
+                userNameInput.removeClass('is-invalid');
+                userNameValidationMessage.hide();
+            }
+
+            if (!passwordInput.val()) {
+                passwordInput.addClass('is-invalid');
+                passwordValidationMessage.text('Password is required').show();
+                e.preventDefault();
+            } else if (isInvalidPassword) {
+                passwordInput.removeClass('is-invalid');
+                passwordValidationMessage.hide();
+            }
+        });
+
+        function validateEmail(email) {
+            return /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/.test(email);
+        }
+    });
+</script>

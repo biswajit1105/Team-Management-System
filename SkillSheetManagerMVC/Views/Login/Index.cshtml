@@ -1,0 +1,95 @@
+﻿@using SkillSheetMVC.EnumsAndConstants;
+@model IEnumerable<SkillSheetMVC.Models.LoginViewModel>
+
+@{
+    ViewData[MVCConatants.Title] = MVCConatants.IndexMethod;
+    List<string> GroupNameList = new List<string>();
+    List<string> NameList = new List<string>();
+}
+
+@if (TempData[MVCConatants.ErrFailedMessage] != null)
+{
+    <div class="alert alert-danger" role="alert">
+        <strong>Failed! </strong> @TempData[MVCConatants.ErrFailedMessage]
+    </div>
+}
+
+<head>
+    <link rel="stylesheet" href="~/css/LoginPage.css">
+</head>
+<body>
+    <section class="text-center px-xxl-5 mx-xxl-5">
+        <div class="card mx-4 mx-md-5 shadow-5-strong" style="border:2px solid black; border-radius:18px; margin-top: 100px; background: hsla(0, 0%, 100%, 0.8); backdrop-filter: blur(30px);">
+            <div class="card-body py-5 px-md-5">
+                <div class="row d-flex justify-content-center">
+                    <div class="col-lg-8">
+                        <h1 class="fw-bold mb-5">Login</h1>
+                        <form asp-controller="Login" asp-action="LoginSubmit">
+                            <div class="form-outline mb-4">
+                                <label class="form-label d-flex justify-content-start" for="GroupNameDropdown"><h5>Group Name</h5></label>
+                                <div>
+                                    @Html.DropDownListFor(m => m.FirstOrDefault().GroupName, new SelectList(GroupNameList), (TempData[MVCConatants.GroupName] as string) ?? "Select Group Name", new { id = "GroupNameDropdown", @class = "form-control", style = "border: 1px solid black;"})
+                                </div>
+                            </div>
+                            <div class="form-outline mb-4" >
+                                <label class="form-label d-flex justify-content-start" for="UserNameDropdown"><h5>User Name</h5></label>
+                                <div>
+                                    @Html.DropDownListFor(m => m.FirstOrDefault().UserName, new SelectList(NameList), (TempData[MVCConatants.UserName] as string) ?? "Select User Name", new { id = "UserNameDropdown", @class = "form-control" , style = "border: 1px solid black;"})
+                                </div>
+                            </div>
+                            <div class="form-outline mb-4" >
+                                <label class="form-label d-flex justify-content-start" for="PasswordInput"><h5>Password</h5></label>
+                                <div class="input-group">
+                                    <input type="password" name="password" class="form-control" placeholder="Enter Password" style="border: 1px solid black;" required id="password">
+                                    <button type="button" style="border:0px; background-color:white; border: 1px solid black; border-radius:2px 2px;"><i class="far fa-eye" id="togglePassword" style="background-color:white"></i></button>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block me-2 mt-2 p-2">Login</button>
+                            <button type="reset" class="btn btn-primary btn-block mt-2 ms-2 p-2" onclick="resetForm()">Reset</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+
+@section Scripts {
+    <script src="~/js/loginpage.js"></script>
+
+    <script>
+        // For Setting of Dropdown List of Group Name and User Name
+        $(document).ready(function () {
+            try {
+                var uniqueGroupNames = Array.from(new Set(@Html.Raw(Json.Serialize(Model.Select(m => m.GroupName).ToList()))));
+                var groupNameDropdown = $('#GroupNameDropdown');
+
+                // Add options for unique group names
+                $.each(uniqueGroupNames, function (index, groupName) {
+                    groupNameDropdown.append($('<option></option>').text(groupName).val(groupName));
+                });
+
+                $('#GroupNameDropdown').change(function () {
+                    var selectedGroup = $(this).val();
+                    var userNameDropdown = $('#UserNameDropdown');
+
+                    // Clear existing options
+                    userNameDropdown.empty();
+
+                    if (selectedGroup === "Admin") {
+                        filteredUsernames = @Html.Raw(Json.Serialize(Model.Where(m => m.GroupName == MVCConatants.GroupAdmin).Select(m => m.UserName).ToList()));
+                    } else if (selectedGroup === "User") {
+                        filteredUsernames = @Html.Raw(Json.Serialize(Model.Where(m => m.GroupName == MVCConatants.GroupUser).Select(m => m.UserName).ToList()));
+                    }
+
+                    // Add options based on the filtered usernames
+                    $.each(filteredUsernames, function (index, userName) {
+                        userNameDropdown.append($('<option></option>').text(userName).val(userName));
+                    });
+                });
+            } catch (error) {
+                console.log(MVCConatants.ErrMsgErrorOccured + error);
+            }
+        });
+    </script>
+}

@@ -1,0 +1,219 @@
+﻿@using SkillSheetMVC.EnumsAndConstants;
+@using System.Globalization;
+@model SkillSheetMVC.Models.PersonalDetailsModel
+@{
+    ViewData[MVCConatants.Title] = MVCConatants.IndexMethod;
+}
+
+@if (TempData[MVCConatants.MsgAlertMessage] != null)
+{
+    <div class="alert alert-success" role="alert">
+        <strong>Success! </strong> @TempData[MVCConatants.MsgAlertMessage]
+    </div>
+}
+else if (TempData[MVCConatants.ErrFailedMessage] != null)
+{
+    <div class="alert alert-danger" role="alert">
+        <strong>Failed! </strong> @TempData[MVCConatants.ErrFailedMessage]
+    </div>
+}
+
+<head>
+    <link rel="stylesheet" href="~/css/PersonalDetails.css">
+</head>
+<body>
+    <div class="head-container">
+        <div class="d-flex justify-content-center">
+            <div class="d-flex justify-content-between align-items-center w-100">
+                <h1 class="text-center" id="admin-heading">Personal Details</h1>
+                <div id="main-btn">
+                    @Html.ActionLink("Change Password", MVCConatants.IndexMethod, MVCConatants.ForgotPasswordController, new { userName = Model.Name , groupName = EnumGroupNames.User}, new { @class = "btn btn-primary" })
+                    <a asp-action="Index" asp-controller="Login" asp-route-logout_Clicked="true" asp-route-username=@ViewBag.UserName class="btn btn-danger m-2">Logout</a>
+                </div>
+            </div>
+        </div>
+        <div class="table-container">
+            <div class="row">
+                <form asp-controller="PersonalDetails" asp-action="PersonalDetailsUpdate" method="post" enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-group mt-2">
+                        <div class="d-flex flex-column col-lg-5">
+                            <label asp-for="Name" class="control-label">Name</label>
+                            @{
+                                string? name = (TempData[MVCConatants.Name] as string) ?? Model.Name;
+                            }
+                            <input asp-for=@name class="form-control" readonly required />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                        <div class="col-lg-2"></div>
+                        <div class="d-flex flex-column col-lg-5" id="BirthdateID">
+                            <label asp-for="BirthDate" class="control-label">Birth Date</label>
+                            @{
+                                string? formattedBirthDate = null;
+                                var tempBirthDate = TempData[MVCConatants.BirthDate];
+
+                                if (TempData[MVCConatants.BirthDate] == null)
+                                {
+                                    formattedBirthDate = Model.BirthDate?.ToString("yyyy-MM-dd");
+                                }
+                                else if (tempBirthDate != null && DateTime.TryParse(tempBirthDate.ToString(), out DateTime birthDate))
+                                {
+                                    formattedBirthDate = birthDate.ToString("yyyy-MM-dd");
+                                }
+                            }
+                            <input type="date" id="BirthDate" name="BirthDate" class="form-control" value="@formattedBirthDate" />
+                            <span asp-validation-for="BirthDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="d-flex flex-column col-lg-5 mt-3">
+                            <label asp-for="Gender" class="control-label">Gender</label>
+                            @{
+                                string? gender = (TempData[MVCConatants.Gender] as string) ?? Model.Gender;
+                            }
+                            <select asp-for=@gender class="form-control">
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                            <span asp-validation-for="Gender" class="text-danger"></span>
+                        </div>
+                        <div class="col-lg-2 mt-3"></div>
+
+                        <div class="d-flex flex-column col-lg-5 mt-3" id="JoiningID">
+                            <label asp-for="JoiningDate" class="control-label">Date Of Joining</label>
+                            @{
+                                string? formattedJoiningDate = null;
+                                var tempJoiningDate = TempData[MVCConatants.JoiningDate];
+
+                                if (TempData[MVCConatants.JoiningDate] == null)
+                                {
+                                    formattedJoiningDate = Model.JoiningDate?.ToString("yyyy-MM-dd");
+                                }
+                                else if (tempJoiningDate != null && DateTime.TryParse(tempJoiningDate.ToString(), out DateTime birthDate))
+                                {
+                                    formattedJoiningDate = birthDate.ToString("yyyy-MM-dd");
+                                }
+                            }
+                            <input type="date" id="JoiningDate" name="JoiningDate" class="form-control" value="@formattedJoiningDate" />
+                            <span asp-validation-for="JoiningDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-5 mt-3" id="EmailID">
+                            <label asp-for="Email" class="control-label">Email</label>
+                            @{
+                                string? email = (TempData[MVCConatants.Email] as string) ?? Model.Email;
+                            }
+                            <input asp-for=@email class="form-control" id="email" required />
+                            <span asp-validation-for="Email" class="text-danger" id="emailValidationMessage"></span>
+                        </div>
+                        <div class="col-lg-2 mt-3"></div>
+                        <div class="col-5 mt-3">
+                            <input type="hidden" name="workedInJapan" asp-for="WorkedInJapan" />
+                            <input class="form-check-input mt-4" type="checkbox" id="workedInJapan" name="workedInJapan" @(Model.WorkedInJapan.HasValue && Model.WorkedInJapan.Value ? "checked" : "") onclick="updateHiddenInput(this)" />
+                            <label class="form-check-label mt-4">Worked in Japan</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-lg-2 mt-4">
+                            <label for="Qualification" class="control-label col-1">Qualification:</label>
+                        </div>
+                        <div class="col-lg-10 mt-4">
+                            @{
+                                string? qualification = (TempData[MVCConatants.Qualification] as string) ?? Model.Qualification;
+                            }
+                            <input asp-for=@qualification class="form-control " />
+                            <span asp-validation-for="Qualification" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-2 mt-4">
+                            <label for="ComputerSkills" class="control-label">Computer Skills:</label>
+                            <span asp-validation-for="ComputerSkills" class="text-danger"></span>
+                        </div>
+                        <div class="col-10 mt-4">
+                            <label for="Languages" class="control-label">Languages:</label>
+                            @{
+                                string? languages = (TempData[MVCConatants.Languages] as string) ?? Model.Languages;
+                            }
+                            <textarea asp-for=@languages class="form-control"></textarea>
+                            <span asp-validation-for="Languages" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-2 mt-4"></div>
+                        <div class="col-10 mt-4">
+                            <label for="Database" class="control-label">Database</label>
+                            @{
+                                string? database = (TempData[MVCConatants.Database] as string) ?? Model.Database;
+                            }
+                            <textarea asp-for=@database class="form-control"></textarea>
+                            <span asp-validation-for="Database" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="row form-group row">
+                        <div class="col-5 mt-4">
+                            @{
+                                object? path = null;
+                                if (Model.Image != null)
+                                {
+                                    var base64 = Convert.ToBase64String(Model.Image);
+                                    var imgSrc = String.Format("data:image/gif;base64,{0}", base64);
+                                    path = imgSrc;
+                                }
+                            }
+                            <label asp-for="IFormFilePhoto" class="control-label">Profile Photo</label>
+                            <input type="file" class="form-control" asp-for="IFormFilePhoto" id="PhotoPath" />
+                        </div>
+                        <div class="col-2 mt-4"></div>
+                        <div class="col-5 mt-4 flex-column">
+                            <img id="PreviewImage" src="@path" accept="image/png, image/jpeg, image/jpg" style="width:150px; height:150px; border:1px solid black;
+                             border-radius:10px; padding:10px;" alt="photo" />
+                        </div>
+                    </div>
+                    <div class="form-group d-flex justify-content-center">
+                        <button type="submit" class="btn btn-primary btn-block me-2 mt-2">Save</button>
+                        <button type="reset" class="btn btn-primary btn-block mt-2 ms-2" onclick="resetForm()">Reset</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+
+@section Scripts {
+    <script src="~/js/prsonaldetails.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        window.addEventListener("DOMContentLoaded", function () {
+            var invalidTempData = "@(TempData["Invalid"] as string)";
+            if (invalidTempData) {
+                alert(invalidTempData);
+            }
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $('form').submit(function (e) {
+                var emailInput = $('#email');
+                var emailValidationMessage = $('#emailValidationMessage');
+                var isInvalid = emailInput.hasClass('is-invalid'); // Check if email input is already marked as invalid
+
+                if (!validateEmail(emailInput.val())) {
+                    emailInput.addClass('is-invalid');
+                    emailValidationMessage.text('Invalid email address').show();
+                    e.preventDefault(); // Prevent form submission
+                } else if (isInvalid) {
+                    emailInput.removeClass('is-invalid'); // Remove the "is-invalid" class if email is now valid
+                    emailValidationMessage.hide();
+                }
+            });
+
+            function validateEmail(email) {
+                return /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/.test(email);
+            }
+        });
+    </script>
+}

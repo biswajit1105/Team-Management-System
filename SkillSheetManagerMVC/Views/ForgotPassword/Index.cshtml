@@ -1,0 +1,118 @@
+﻿@using SkillSheetMVC.EnumsAndConstants;
+@model SkillSheetMVC.Models.ForgotPasswordModel
+
+@{
+    ViewData[MVCConatants.Title] = MVCConatants.IndexMethod;
+}
+
+@if (TempData[MVCConatants.ErrFailedMessage] != null)
+{
+    <div class="alert alert-danger" role="alert">
+        <strong>Failed! </strong> @TempData[MVCConatants.ErrFailedMessage]
+    </div>
+}
+
+<head>
+    <link rel="stylesheet" href="~/css/ForgotPassword.css">
+</head>
+<body>
+    <div class="head-container">
+        <div class="d-flex justify-content-center">
+            <div class="d-flex justify-content-between align-items-center w-100">
+                <h1 class="text-center" id="admin-heading">Change Password</h1>
+                <div id="main-btn">
+                    <button class="btn btn-primary" id="back-btn"></button>
+                    <a asp-action="Index" asp-controller="Login" asp-route-logout_Clicked="true" asp-route-username=@ViewBag.UserName class="btn btn-danger m-2">Logout</a>
+                </div>
+            </div>
+        </div>
+        <div class="table-container">
+            <div class="inner-box">
+                <form asp-action="ChangePassword" asp-controller="ForgotPassword" class="needs-validation" novalidate>
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-group mb-3">
+                        <label asp-for="UserName" class="control-label">User Name</label>
+                        <input asp-for="UserName" class="form-control" readonly required style="border: 1px solid black;" />
+                        <span asp-validation-for="UserName" class="text-danger"></span>
+                        <div class="invalid-feedback">User Name is Required</div>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label asp-for="Password" class="control-label">Old Password</label>
+                        <div class="input-group">
+                            <input asp-for="Password" type="password" class="form-control" id="password1" required style="border: 1px solid black;" />
+                            <button type="button" style="border:0px; background-color:white; border: 1px solid black; border-radius:2px 2px;"><i class="far fa-eye" id="togglePassword1" style="background-color:white"></i></button>
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                            <div class="invalid-feedback">Password is Required</div>
+                        </div>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label asp-for="NewPassword" class="control-label">New Password</label>
+                        <div class="input-group">
+                            <input asp-for="NewPassword" type="password" class="form-control" id="password2" required style="border: 1px solid black;" />
+                            <button type="button" style="border:0px; background-color:white; border: 1px solid black; border-radius:2px 2px;"><i class="far fa-eye" id="togglePassword2" style="background-color:white"></i></button>
+                            <span asp-validation-for="NewPassword" class="text-danger"></span>
+                            <div class="invalid-feedback">New Password is Required</div>
+                        </div>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label asp-for="ConfirmPassword" class="control-label">Confirm Password</label>
+                        <div class="input-group">
+                            <input asp-for="ConfirmPassword" type="password" class="form-control" id="password3" required style="border: 1px solid black;" />
+                            <button type="button" style="border:0px; background-color:white; border: 1px solid black; border-radius:2px 2px;"><i class="far fa-eye" id="togglePassword3" style="background-color:white"></i></button>
+                            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                            <div class="invalid-feedback">Confirm Password is Required</div>
+                        </div>
+                    </div>
+                    <div class="form-group d-flex justify-content-center">
+                        <input type="submit" value="Save" class="btn btn-primary me-2 mt-2" />
+                        <button type="reset" class="btn btn-primary btn-block mt-2 ms-2">Reset</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+
+@section Scripts {
+    <script src="~/js/forgotpassword.js"></script>
+
+    <script>
+        $(function () {
+            $('#back-btn').click(function () {
+                var userName = '@Model.UserName';
+                var groupName = '@ViewBag.GroupName';
+
+                if (groupName === "Admin") {
+                    window.location.href = '@Url.Action("Index", "Admin", new { adminName = Model.UserName })';
+                } else {
+                    window.location.href = '@Url.Action("Index", "PersonalDetails", new { userName = Model.UserName })';
+                }
+            });
+
+            $(document).ready(function () {
+                var buttonText = '@(ViewBag.GroupName == "Admin" ? "Manage User" : "View/Update Personal Details")';
+                $('#back-btn').text(buttonText);
+            });
+        });
+    </script>
+
+    <script>
+        // Disabling form submissions if there are invalid fields
+        (function () {
+            // Fetch all the forms we want to apply validation
+            var forms = document.querySelectorAll('.needs-validation')
+            // Loop over fields and prevent submission
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })()
+    </script>
+}
